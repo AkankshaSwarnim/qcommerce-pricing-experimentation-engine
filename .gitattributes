@@ -1,0 +1,4 @@
+# Exclude generated / exported HTML from GitHub's language stats so the repo
+# reflects the Python analysis, not the bundled dashboard libraries.
+reports/dashboard.html linguist-generated=true
+notebook.html linguist-generated=true
