@@ -1,0 +1,229 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Interactive Pricing Simulator — Q-Commerce</title>
+<style>
+  :root{--bg:#0f1419;--card:#1a2230;--line:#283042;--orange:#ff5a36;--gold:#f2b705;
+        --blue:#4c9be8;--ok:#39d98a;--bad:#ff6b6b;--grey:#9aa0a6;--ink:#e6e9ef;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,Segoe UI,Arial,sans-serif}
+  .wrap{max-width:1000px;margin:0 auto;padding:26px 20px 60px}
+  a.back{color:var(--blue);font-size:13px;text-decoration:none}
+  h1{font-size:25px;margin:10px 0 4px} .sub{color:var(--grey);margin:0 0 6px;font-size:14px}
+  .badge{display:inline-block;background:#33240f;color:var(--gold);border:1px solid #5a4112;
+    padding:3px 10px;border-radius:20px;font-size:12px;margin:6px 0 20px}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin:0 0 18px}
+  .panel h3{margin:0 0 14px;font-size:15px;color:#cdd6e4}
+  .intro p{margin:0 0 10px;font-size:14px;line-height:1.6} .intro p:last-child{margin:0} .intro b{color:#cdd6e4}
+  .intro ol{margin:8px 0 0;padding-left:20px;font-size:14px;line-height:1.7} .intro ol b{color:#ffd9cf}
+  .hint{color:var(--grey);font-size:12.5px;line-height:1.5;margin:-6px 0 16px}
+  .seg{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+  .seg button{flex:1;min-width:90px;background:#111927;color:var(--ink);border:1px solid var(--line);
+    border-radius:10px;padding:10px;font-size:14px;cursor:pointer;transition:.15s}
+  .seg button.active{border-color:var(--orange);background:#241612;color:#ffd9cf;font-weight:600}
+  .ctrl{margin:0 0 6px}
+  .ctrl label{display:flex;justify-content:space-between;font-size:13.5px;color:#c8cfda;margin-bottom:6px}
+  .ctrl label b{color:#fff;font-size:14px}
+  input[type=range]{width:100%;accent-color:var(--orange);height:4px}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:6px}
+  .kpi{background:#111927;border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+  .kpi .l{color:var(--grey);font-size:12.5px} .kpi .v{font-size:24px;font-weight:700;margin:4px 0}
+  .kpi .s{font-size:12px;color:var(--grey)}
+  .verdict{display:inline-block;padding:3px 10px;border-radius:8px;font-size:12.5px;font-weight:700}
+  .verdict.ok{background:#13321f;color:var(--ok)} .verdict.bad{background:#3a1313;color:var(--bad)}
+  .insight{background:#13261f;border-left:3px solid var(--ok);padding:14px 16px;border-radius:8px;
+    font-size:14px;line-height:1.6;margin-top:4px}
+  .insight.bad{background:#241315;border-left-color:var(--bad)}
+  .cap{color:var(--grey);font-size:12.5px;line-height:1.5;margin:10px 2px 0}
+  .gloss dl{display:grid;grid-template-columns:auto 1fr;gap:7px 16px;margin:0}
+  .gloss dt{color:#9fd0ff;font-weight:700;font-size:13px;white-space:nowrap}
+  .gloss dd{margin:0;font-size:13px;color:#c8cfda;line-height:1.5}
+  .note{color:var(--grey);font-size:12px;margin-top:22px;line-height:1.5}
+  svg text{font-family:Inter,Segoe UI,Arial,sans-serif}
+</style></head><body><div class="wrap">
+  <a class="back" href="dashboard.html">&larr; Back to dashboard</a>
+  <h1>Interactive Pricing Simulator</h1>
+  <p class="sub">Drag the levers. Conversion, margin, and the recommendation update live.</p>
+  <span class="badge">Simplified what-if model &middot; built on the same synthetic curves</span>
+
+  <div class="panel intro">
+    <p><b>What this is.</b> A hands-on version of the pricing analysis. You set a discount, and it shows &mdash; instantly &mdash; whether it wins more customers <i>and</i> whether it still makes money after the price cut.</p>
+    <p><b>How to use it:</b></p>
+    <ol>
+      <li><b>Pick a customer segment</b> &mdash; different customers react differently to discounts.</li>
+      <li><b>Drag the three sliders</b> &mdash; discount depth, your profit margin, and average order size.</li>
+      <li><b>Read the result</b> &mdash; the cards, the chart, and the plain-English verdict all update as you move.</li>
+    </ol>
+  </div>
+
+  <div class="panel">
+    <h3>1 &middot; Pick a customer segment</h3>
+    <div class="seg" id="segBtns">
+      <button data-seg="new" class="active">New customers</button>
+      <button data-seg="casual">Casual</button>
+      <button data-seg="loyal">Loyal</button>
+    </div>
+    <p class="hint">New = first-time buyers (very price-sensitive) &middot; Casual = occasional &middot; Loyal = regulars (barely react to price). This is the single biggest driver of whether a discount is worth it.</p>
+
+    <h3>2 &middot; Set the levers</h3>
+    <div class="ctrl">
+      <label>Discount depth <b><span id="dV">10</span>%</b></label>
+      <input type="range" id="d" min="0" max="20" step="1" value="10">
+    </div>
+    <p class="hint">How much you take off the price.</p>
+    <div class="ctrl">
+      <label>Gross margin rate <b><span id="mV">25</span>%</b></label>
+      <input type="range" id="m" min="15" max="35" step="1" value="25">
+    </div>
+    <p class="hint">Your profit margin <i>before</i> any discount. Grocery is thin &mdash; usually around 25%. The discount comes straight out of this.</p>
+    <div class="ctrl">
+      <label>Average basket <b>AED <span id="bV">80</span></b></label>
+      <input type="range" id="b" min="40" max="120" step="5" value="80">
+    </div>
+    <p class="hint">The typical order value, in AED.</p>
+  </div>
+
+  <div class="panel">
+    <h3>Outcome at these settings</h3>
+    <p class="hint" style="margin-top:-6px">Conversion = share of customers who order &middot; Margin / exposure = the <i>actual</i> profit per customer shown the offer &middot; Change vs no discount = how much more or less profit than not discounting at all (green = discounting is worth it; red = you&rsquo;d keep more profit by not discounting).</p>
+    <div class="kpis">
+      <div class="kpi"><div class="l">Conversion rate</div><div class="v" id="oConv">—</div><div class="s" id="oConvS">—</div></div>
+      <div class="kpi"><div class="l">Margin / exposure</div><div class="v" id="oMarg">—</div><div class="s">at this discount</div></div>
+      <div class="kpi"><div class="l">Change vs no discount</div><div class="v" id="oDelta">—</div><div class="s"><span id="oVerdict"></span></div></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3>Margin across discount depths (<span id="segName">new</span>)</h3>
+    <div id="chart"></div>
+    <p class="cap"><b>How to read this:</b> the line is the <i>actual</i> profit per customer at each discount depth; the white dot is your current setting. It usually slopes down because every dirham of discount comes straight out of a thin margin &mdash; so deeper discounts leave less profit, <i>even though the sale is still profitable</i>. The line only dips below zero if the discount is bigger than your margin rate.</p>
+  </div>
+
+  <div id="insight" class="insight">—</div>
+
+  <div class="panel gloss" style="margin-top:18px">
+    <h3>Key terms</h3>
+    <dl>
+      <dt>Conversion</dt><dd>The customer actually places an order (not just browses).</dd>
+      <dt>Exposure</dt><dd>One chance to convert &mdash; a customer opening the app with intent to buy.</dd>
+      <dt>Margin</dt><dd>What&rsquo;s left after costs &mdash; the actual profit on a sale.</dd>
+      <dt>Gross margin rate</dt><dd>Your profit as a share of the order value, before any discount.</dd>
+      <dt>Elastic / inelastic</dt><dd>Elastic = reacts strongly to price (new customers). Inelastic = barely reacts (loyal customers).</dd>
+      <dt>pp</dt><dd>Percentage points &mdash; the plain gap between two percentages (40% &rarr; 45% is +5&nbsp;pp).</dd>
+    </dl>
+  </div>
+
+  <p class="note">This simulator is a simplified interactive model built on the conversion and margin
+  curves from the main analysis (synthetic data). It&rsquo;s for exploring &ldquo;what if&rdquo; &mdash; the rigorous
+  experiment reading (Simpson&rsquo;s-Paradox correction, CUPED, guardrails) lives in the
+  <a href="dashboard.html" style="color:var(--blue)">main dashboard</a>. Figures are illustrative.</p>
+</div>
+
+<script>
+const SEG = {
+  casual:[[0,0.4961],[5,0.5202],[10,0.5431],[15,0.5576],[20,0.5844]],
+  loyal :[[0,0.5699],[5,0.5783],[10,0.6052],[15,0.6126],[20,0.6255]],
+  new   :[[0,0.4292],[5,0.4840],[10,0.5066],[15,0.5162],[20,0.6247]]
+};
+const COLOR = {new:"#ff5a36", casual:"#f2b705", loyal:"#4c9be8"};
+const LABEL = {new:"New", casual:"Casual", loyal:"Loyal"};
+let seg = "new";
+
+function conv(s,d){
+  const p = SEG[s];
+  for(let i=0;i<p.length-1;i++){
+    if(d>=p[i][0] && d<=p[i+1][0]){
+      const t=(d-p[i][0])/(p[i+1][0]-p[i][0]);
+      return p[i][1]+t*(p[i+1][1]-p[i][1]);
+    }
+  }
+  return p[p.length-1][1];
+}
+function margin(s,d,basket,mr){ return conv(s,d)*basket*((mr-d)/100); }
+
+function insightText(s,d,delta,liftPP){
+  const seLabel = LABEL[s];
+  if(d===0) return "<b>No discount.</b> This is the baseline — the most margin you keep. Move the discount slider to see the trade-off.";
+  let lead;
+  if(delta >= 0){
+    lead = "<b>At "+d+"% off, discounting is worth it.</b> "+seLabel+" customers convert +"+liftPP.toFixed(1)+"pp more, and the extra volume more than covers the discount — about AED "+delta.toFixed(2)+" more profit per customer than not discounting.";
+  } else {
+    lead = "<b>At "+d+"% off, discounting isn't worth it.</b> "+seLabel+" customers convert +"+liftPP.toFixed(1)+"pp more, but the extra orders don't make up for the margin given away — you end up with about AED "+Math.abs(delta).toFixed(2)+" less profit per customer than if you hadn't discounted (the sale itself can still be profitable).";
+  }
+  let tail;
+  if(s==="loyal") tail = " Loyal customers barely respond to price, so discounting them is close to pure margin loss — they'd mostly have bought anyway.";
+  else if(s==="new") tail = " New customers are the most price-responsive, so if you discount anyone it's them — but justify it by their long-term value, not this single-order margin.";
+  else tail = " Casual customers sit in between — discount only if the volume genuinely covers the cut.";
+  return lead + tail;
+}
+
+function drawChart(basket, mr, curD){
+  const W=720,H=300,padL=58,padR=20,padT=15,padB=42;
+  const xs=[],ys=[];
+  for(let d=0;d<=20;d++){ xs.push(d); ys.push(margin(seg,d,basket,mr)); }
+  let yMin=Math.min(0,...ys), yMax=Math.max(...ys);
+  const pad=(yMax-yMin)*0.1||1; yMax+=pad; yMin-=(yMin<0?pad:0);
+  const px=d=> padL + (d/20)*(W-padL-padR);
+  const py=v=> padT + (1-(v-yMin)/(yMax-yMin))*(H-padT-padB);
+  const col=COLOR[seg];
+
+  let g="";
+  for(let i=0;i<=4;i++){
+    const v=yMin+(yMax-yMin)*i/4, y=py(v);
+    g+='<line x1="'+padL+'" y1="'+y+'" x2="'+(W-padR)+'" y2="'+y+'" stroke="#222b3a" stroke-width="1"/>';
+    g+='<text x="'+(padL-8)+'" y="'+(y+4)+'" fill="#9aa0a6" font-size="12" text-anchor="end">'+v.toFixed(1)+'</text>';
+  }
+  if(yMin<0 && yMax>0){ const zy=py(0); g+='<line x1="'+padL+'" y1="'+zy+'" x2="'+(W-padR)+'" y2="'+zy+'" stroke="#5a6472" stroke-width="1.5"/>'; }
+  [0,5,10,15,20].forEach(t=>{ g+='<text x="'+px(t)+'" y="'+(H-16)+'" fill="#9aa0a6" font-size="12" text-anchor="middle">'+t+'%</text>'; });
+  g+='<text x="'+((padL+W-padR)/2)+'" y="'+(H-2)+'" fill="#c8cfda" font-size="12.5" text-anchor="middle">Discount depth (%)</text>';
+  g+='<text transform="translate(14,'+((padT+H-padB)/2)+') rotate(-90)" fill="#c8cfda" font-size="12.5" text-anchor="middle">Margin / exposure (AED)</text>';
+  let pts=xs.map((d,i)=>px(d)+','+py(ys[i])).join(' ');
+  g+='<polyline points="'+pts+'" fill="none" stroke="'+col+'" stroke-width="3"/>';
+  const cx=px(curD), cy=py(margin(seg,curD,basket,mr));
+  g+='<circle cx="'+cx+'" cy="'+cy+'" r="7" fill="#fff" stroke="'+col+'" stroke-width="3"/>';
+
+  document.getElementById("chart").innerHTML =
+    '<svg viewBox="0 0 '+W+' '+H+'" width="100%" style="max-height:320px">'+g+'</svg>';
+}
+
+function update(){
+  const d = +document.getElementById("d").value;
+  const mr = +document.getElementById("m").value;
+  const basket = +document.getElementById("b").value;
+  document.getElementById("dV").textContent = d;
+  document.getElementById("mV").textContent = mr;
+  document.getElementById("bV").textContent = basket;
+  document.getElementById("segName").textContent = seg;
+
+  const c = conv(seg,d), c0 = conv(seg,0);
+  const liftPP = (c - c0)*100;
+  const mg = margin(seg,d,basket,mr), mg0 = margin(seg,0,basket,mr);
+  const delta = mg - mg0;
+
+  document.getElementById("oConv").textContent = (c*100).toFixed(1)+"%";
+  document.getElementById("oConvS").textContent = (liftPP>=0?"+":"")+liftPP.toFixed(1)+"pp vs no discount";
+  document.getElementById("oMarg").textContent = "AED "+mg.toFixed(2);
+  const dEl = document.getElementById("oDelta");
+  dEl.textContent = (delta>=0?"+":"")+"AED "+delta.toFixed(2);
+  dEl.style.color = delta>=0 ? "var(--ok)" : "var(--bad)";
+  const v = document.getElementById("oVerdict");
+  v.className = "verdict " + (delta>=0?"ok":"bad");
+  v.textContent = delta>=0 ? "Worth it" : "Not worth it";
+
+  const ins = document.getElementById("insight");
+  ins.className = "insight " + (delta>=0 ? "" : "bad");
+  ins.innerHTML = insightText(seg,d,delta,liftPP);
+
+  drawChart(basket, mr, d);
+}
+
+document.querySelectorAll("#segBtns button").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.querySelectorAll("#segBtns button").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    seg = btn.dataset.seg;
+    update();
+  });
+});
+["d","m","b"].forEach(id=>document.getElementById(id).addEventListener("input",update));
+update();
+</script>
+</body></html>
