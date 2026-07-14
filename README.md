@@ -1,3 +1,7 @@
+**▶ Live dashboard:** https://akankshaswarnim.github.io/qcommerce-pricing-experimentation-engine/reports/dashboard.html
+**▶ Interactive simulator:** https://akankshaswarnim.github.io/qcommerce-pricing-experimentation-engine/reports/simulator.html
+
+
 # Q-Commerce Pricing &amp; Demand Experimentation Engine
 
 **An end-to-end pricing analytics project for a UAE quick-commerce (grocery delivery) platform — price elasticity, A/B experimentation, and margin guardrails that turn a price decision into a defensible, P&amp;L-aware recommendation.**
