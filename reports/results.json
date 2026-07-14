@@ -1,0 +1,158 @@
+{
+  "elasticity": {
+    "logit_log_price_coef": -1.657,
+    "elasticity_at_mean": -0.784,
+    "interpretation": "demand is INELASTIC (discounting mostly erodes margin)",
+    "segment_curves": {
+      "casual": {
+        "0.0": 0.4961,
+        "0.05": 0.5202,
+        "0.1": 0.5431,
+        "0.15": 0.5576,
+        "0.2": 0.5844
+      },
+      "loyal": {
+        "0.0": 0.5699,
+        "0.05": 0.5783,
+        "0.1": 0.6052,
+        "0.15": 0.6126,
+        "0.2": 0.6255
+      },
+      "new": {
+        "0.0": 0.4292,
+        "0.05": 0.484,
+        "0.1": 0.5066,
+        "0.15": 0.5162,
+        "0.2": 0.6247
+      }
+    },
+    "segment_arc_elasticity": {
+      "casual": -0.89,
+      "loyal": -0.49,
+      "new": -2.28
+    }
+  },
+  "experiment": {
+    "n_control": 32162,
+    "n_treatment": 27838,
+    "control_rate": 0.5277,
+    "treatment_rate": 0.5268,
+    "naive_lift_pp": -0.09,
+    "naive_ci_pp": [
+      -0.89,
+      0.71
+    ],
+    "stratified_lift_pp": 4.46,
+    "cuped_variance_reduction_pct": 5.1,
+    "cuped_metric": "revenue per exposure (AED)",
+    "zone_table": [
+      {
+        "zone": "Business Bay",
+        "control": 0.5044,
+        "treatment": 0.5438,
+        "lift_pp": 3.94,
+        "treat_share": 0.45
+      },
+      {
+        "zone": "Deira",
+        "control": 0.3683,
+        "treatment": 0.4256,
+        "lift_pp": 5.73,
+        "treat_share": 0.7
+      },
+      {
+        "zone": "Downtown",
+        "control": 0.5969,
+        "treatment": 0.6425,
+        "lift_pp": 4.56,
+        "treat_share": 0.3
+      },
+      {
+        "zone": "JLT",
+        "control": 0.4407,
+        "treatment": 0.4939,
+        "lift_pp": 5.32,
+        "treat_share": 0.62
+      },
+      {
+        "zone": "Marina",
+        "control": 0.5606,
+        "treatment": 0.5925,
+        "lift_pp": 3.19,
+        "treat_share": 0.35
+      }
+    ],
+    "verdict": "Naive read understates the true effect ~-49x due to allocation bias (Simpson's Paradox)."
+  },
+  "guardrails": {
+    "naive_rev_per_exposure": {
+      "control": 43.21,
+      "treatment": 35.69
+    },
+    "naive_margin_per_exposure": {
+      "control": 8.85,
+      "treatment": 3.95
+    },
+    "stratified_revenue_delta_aed": -1.166,
+    "stratified_margin_delta_aed": -3.902,
+    "G1_blanket_margin_accretive": false,
+    "G2_segment_margin_delta_aed": {
+      "casual": -3.845,
+      "loyal": -4.619,
+      "new": -3.159
+    },
+    "G2_margin_positive_segments": [],
+    "G3_fairness_all_zones_positive": true,
+    "G4_min_detectable_effect_pp": 1.18,
+    "projected_monthly_incremental_margin_aed_TARGETED": 0,
+    "projection_assumptions": "1,000,000 monthly exposures; promo restricted to margin-positive segments; stratified deltas held. SYNTHETIC DATA - illustrative only."
+  },
+  "optimization": {
+    "segment_margin_curves": {
+      "casual": {
+        "0.0": 10.77,
+        "0.05": 9.02,
+        "0.1": 7.07,
+        "0.15": 4.9,
+        "0.2": 2.53
+      },
+      "loyal": {
+        "0.0": 12.34,
+        "0.05": 10.07,
+        "0.1": 7.92,
+        "0.15": 5.35,
+        "0.2": 2.71
+      },
+      "new": {
+        "0.0": 9.31,
+        "0.05": 8.37,
+        "0.1": 6.6,
+        "0.15": 4.45,
+        "0.2": 2.7
+      }
+    },
+    "segment_optimal_policy": {
+      "casual": {
+        "optimal_discount": 0.0,
+        "margin_at_optimal": 10.77
+      },
+      "loyal": {
+        "optimal_discount": 0.0,
+        "margin_at_optimal": 12.34
+      },
+      "new": {
+        "optimal_discount": 0.0,
+        "margin_at_optimal": 9.31
+      }
+    },
+    "baseline_margin_per_exposure_aed": 8.846,
+    "optimal_margin_per_exposure_aed": 10.872,
+    "uplift_per_exposure_aed": 2.026,
+    "projected_monthly_margin_uplift_aed": 2025852,
+    "policy_summary": {
+      "casual": "0% discount",
+      "loyal": "0% discount",
+      "new": "0% discount"
+    }
+  }
+}
